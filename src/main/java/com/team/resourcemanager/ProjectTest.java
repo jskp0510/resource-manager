@@ -11,11 +11,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
 
+/**
+ * 공통 기반 테스트 코드
+ *
+ * 프로젝트 초기 세팅 및 환경 구성이 정상적으로 되었는지 확인하기 위한 테스트.
+ * DB 연결, 테이블 조회, 공통 상수, 날짜 유틸, 기본 UI 실행을 확인한다.
+ *
+ * 새로운 환경에서 프로젝트를 세팅한 경우 이 클래스를 실행하여
+ * 공통 기반이 정상적으로 동작하는지 확인할 수 있다.
+ */
 public class ProjectTest {
 
     public static void main(String[] args) {
 
-        // DB 연결 테스트1
+        // 1-1. DB 연결 및 SQL 실행 테스트
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement("SELECT 1");
              ResultSet rs = pstmt.executeQuery()) {
@@ -30,7 +39,7 @@ public class ProjectTest {
             e.printStackTrace();
         }
 
-        // DB 연결 테스트2
+        // 1-2. USER 테이블 조회 테스트
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(
                     "SELECT COUNT(*) FROM USER");
@@ -70,7 +79,7 @@ public class ProjectTest {
         System.out.println("날짜 차이: "
                 + DateUtil.daysBetween(today, dueDate) + "일");
 
-        // 4. GUI 실행 테스트
+        // 4. 기본 UI 실행 테스트
         SwingUtilities.invokeLater(() -> {
             LoginFrame loginFrame = new LoginFrame();
             loginFrame.setVisible(true);

@@ -3,9 +3,8 @@
 ## 완료한 작업
 
 - Maven 프로젝트 및 패키지 구조 구성
-- MySQL `resource_manager` DB 구성
-- USER / CATEGORY / ITEM / LOAN 테이블 구성
-- `schema.sql` 추가
+- MySQL `resource_manager` DB 및 USER / CATEGORY / ITEM / LOAN 테이블 구성
+- `schema.sql` 작성 및 실행 테스트 완료
 - `DBConnection.java` 작성 및 DB 연결 테스트
 - `LoginFrame` / `MainFrame` 기본 화면 구성
 - `Constants.java` 작성

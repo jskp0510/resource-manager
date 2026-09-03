@@ -14,14 +14,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
-SET @@SESSION.SQL_LOG_BIN= 0;
 
 --
--- GTID state at the beginning of the backup 
+-- Current Database: `resource_manager`
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '22741f12-a531-11f1-a99b-de15cbbb4a3f:1-5';
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `resource_manager` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `resource_manager`;
 
 --
 -- Table structure for table `CATEGORY`
@@ -37,15 +37,6 @@ CREATE TABLE `CATEGORY` (
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `CATEGORY`
---
-
-LOCK TABLES `CATEGORY` WRITE;
-/*!40000 ALTER TABLE `CATEGORY` DISABLE KEYS */;
-/*!40000 ALTER TABLE `CATEGORY` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `ITEM`
@@ -66,15 +57,6 @@ CREATE TABLE `ITEM` (
   CONSTRAINT `item_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `CATEGORY` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ITEM`
---
-
-LOCK TABLES `ITEM` WRITE;
-/*!40000 ALTER TABLE `ITEM` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ITEM` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `LOAN`
@@ -101,15 +83,6 @@ CREATE TABLE `LOAN` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `LOAN`
---
-
-LOCK TABLES `LOAN` WRITE;
-/*!40000 ALTER TABLE `LOAN` DISABLE KEYS */;
-/*!40000 ALTER TABLE `LOAN` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `USER`
 --
 
@@ -126,16 +99,6 @@ CREATE TABLE `USER` (
   UNIQUE KEY `login_id` (`login_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `USER`
---
-
-LOCK TABLES `USER` WRITE;
-/*!40000 ALTER TABLE `USER` DISABLE KEYS */;
-/*!40000 ALTER TABLE `USER` ENABLE KEYS */;
-UNLOCK TABLES;
-SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -146,4 +109,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-02 15:45:38
+-- Dump completed on 2026-09-03 20:21:39
