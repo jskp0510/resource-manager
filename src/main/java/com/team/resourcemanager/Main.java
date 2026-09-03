@@ -1,7 +1,15 @@
 package com.team.resourcemanager;
 
+import com.team.resourcemanager.ui.LoginFrame;
+
+import javax.swing.SwingUtilities;
+
 public class Main {
+
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        SwingUtilities.invokeLater(() -> {
+            LoginFrame loginFrame = new LoginFrame();
+            loginFrame.setVisible(true);
+        });
     }
 }
