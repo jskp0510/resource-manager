@@ -16,7 +16,8 @@ public class DBConnection {
     private static final String USER = "root";
 
     // MySQL 비밀번호
-    private static final String PASSWORD = "";
+    private static final String PASSWORD =
+        System.getenv("RESOURCE_MANAGER_DB_PASSWORD");
 
     // DB 연결 생성
     public static Connection getConnection() throws SQLException {
