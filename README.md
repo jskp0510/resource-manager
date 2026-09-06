@@ -1,21 +1,17 @@
-```markdown
 # Resource Manager
 
-Java Swing + JDBC + MySQL 기반 자원 관리 프로그램
+Java Swing + JDBC + MySQL 기반 자원 관리 프로그램입니다.
 
----
-
-## 🛠 개발 환경 및 사용 기술
+## 개발 환경
 
 - Java 17+
 - Maven
-- MySQL (MySQL Connector/J 9.4.0)
+- MySQL 8.x
+- MySQL Connector/J 9.4.0
 - Java Swing
-- Git / GitHub
+- BCrypt
 
----
-
-## 📁 프로젝트 구조
+## 프로젝트 구조
 
 ```text
 src/main
@@ -26,81 +22,90 @@ src/main
 │   ├── ui
 │   └── util
 └── resources
-
 ```
 
----
+## 데이터베이스 설정
 
-## 🗄 데이터베이스 설정
+MySQL Workbench에서 프로젝트 루트의 `schema.sql`을 실행합니다.
 
-* **DB 이름:** `resource_manager`
-
-### 1. DB 및 테이블 생성
-
-MySQL 실행 후 프로젝트 루트의 `schema.sql`을 실행하여
-`resource_manager` 데이터베이스와 테이블을 생성. (테스트 데이터 미포함)
-
-
-### 2. DB 연결 설정
-
-`util/DBConnection.java`에서 로컬 MySQL 환경에 맞게 접속 정보를 수정하고 연결을 테스트함.
-
-```java
-private static final String URL = "jdbc:mysql://localhost:3306/resource_manager";
-private static final String USER = "root";
-private static final String PASSWORD = "";
-
+```sql
+USE resource_manager;
+SHOW TABLES;
 ```
 
-* `URL`: MySQL 서버 주소, 포트, DB 이름
-* `USER`: MySQL 사용자 이름
-* `PASSWORD`: MySQL 비밀번호
-
----
-
-## 🚀 실행 순서
-
-1. Maven 프로젝트를 불러오기.
-2. `ProjectTest.java`를 실행하여 공통 환경 및 기반 기능을 점검.
-3. 아래 메인 클래스를 실행하기. (실행 시 로그인 화면이 표시됨)
+DB 비밀번호는 코드에 저장하지 않습니다. Windows 사용자 환경변수에 아래 값을 등록합니다.
 
 ```text
-com.team.resourcemanager.Main
+변수 이름: RESOURCE_MANAGER_DB_PASSWORD
+변수 값: 로컬 MySQL root 비밀번호
+```
 
----
+필요한 경우 다음 환경변수로 기본값을 바꿀 수 있습니다.
 
-## 📌 공통 상태값
+```text
+RESOURCE_MANAGER_DB_URL
+RESOURCE_MANAGER_DB_USER
+```
 
-* **권한:** `USER`, `ADMIN`
-* **ITEM:** `AVAILABLE`, `MAINTENANCE`, `BORROWED`
-* **LOAN:** `REQUESTED`, `BORROWED`, `REJECTED`, `RETURNED`, `OVERDUE`
+기본 접속값은 `jdbc:mysql://localhost:3306/resource_manager`, `root`입니다.
 
----
+## 빌드와 테스트
 
-## 🌿 Git 규칙
+```cmd
+mvn clean test
+```
 
-### 브랜치
+`RESOURCE_MANAGER_DB_PASSWORD`가 설정되어 있고 DB가 실행 중이면 USER 테이블 CRUD 통합 테스트도 실행됩니다. 환경변수가 없으면 해당 통합 테스트만 건너뜁니다.
+
+## 실행
+
+VS Code에서 `com.team.resourcemanager.Main`을 실행하거나 다음 명령을 사용합니다.
+
+```cmd
+mvn exec:java -Dexec.mainClass=com.team.resourcemanager.Main
+```
+
+## 회원가입 규칙
+
+- 아이디: 영문, 숫자, 밑줄 4~20자
+- 비밀번호: 8자 이상, 문자와 숫자를 각각 1개 이상 포함
+- 이름: 2~20자
+- 가입 계정의 기본 권한: `USER`
+- 비밀번호는 BCrypt 해시로만 저장
+
+## 테스트 계정 준비
+
+1. 회원가입 화면에서 일반 계정과 관리자용 계정을 각각 가입합니다.
+2. MySQL Workbench에서 관리자용 계정의 권한만 변경합니다.
+
+```sql
+USE resource_manager;
+UPDATE `USER`
+SET role = 'ADMIN'
+WHERE login_id = 'admin01';
+```
+
+3. 결과를 확인합니다.
+
+```sql
+SELECT user_id, login_id, name, role
+FROM `USER`;
+```
+
+비밀번호 컬럼은 평문이 아닌 `$2a$...` 형태의 BCrypt 해시여야 합니다.
+
+## 권한 기준
+
+- `USER`: 대시보드, 대여 관리, 반납 관리, 이력 조회, 일정
+- `ADMIN`: USER 메뉴 + 물품 관리 + 회원 관리
+
+화면에서 관리자 메뉴를 숨기며, 관리자 메뉴 이벤트에서도 권한을 다시 확인합니다.
+
+## Git 규칙
 
 - `main`: 안정 버전
-- `feature/*`: 담당 기능 작업용 브랜치
-  - 작업 완료 및 정상 동작 확인 후 PR 생성하여 `main`에 반영
-  - `feature/common`: 공통 기능
-  - `feature/login`: 로그인·회원 관리
-  - `feature/item`: 물품·카테고리 관리
-  - `feature/loan`: 대여 신청·승인
-  - `feature/return`: 반납·연체
-  - `feature/history`: 이력·일정·검색
+- `feature/login`: 로그인·회원 관리
+- 커밋 형식: `type: 작업내용`
+- 기능 검증 후 Pull Request로 `main`에 반영
 
-
-### Commit 형식: `type: 작업내용`
-
-* `feat`: 기능 추가
-* `fix`: 버그 수정
-* `ui`: 화면 수정
-* `refactor`: 기능 변경 없이 코드 구조/정리
-* `test`: 테스트 코드 및 테스트 작업
-* `docs`: 문서 수정
-
-```
-
-```
+DB 비밀번호, 환경변수 값, 개인 설정 파일은 커밋하지 않습니다.
