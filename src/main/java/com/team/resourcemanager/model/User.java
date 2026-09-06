@@ -1,5 +1,7 @@
 package com.team.resourcemanager.model;
 
+import com.team.resourcemanager.util.Constants;
+
 public class User {
 
     private int userId;
@@ -68,6 +70,13 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return "ADMIN".equals(role);
+        return Constants.ROLE_ADMIN.equals(role);
+    }
+
+    /**
+     * 세션과 UI에는 비밀번호 해시도 보관하지 않도록 안전한 복사본을 만든다.
+     */
+    public User withoutPassword() {
+        return new User(userId, loginId, null, name, role);
     }
 }
