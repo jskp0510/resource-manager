@@ -5,7 +5,7 @@ Java Swing + JDBC + MySQL 기반 자원 관리 프로그램
 
 ---
 
-## 🛠 개발 환경 및 사용 기술
+## 개발 환경 및 사용 기술
 
 - Java 17+
 - Maven
@@ -15,9 +15,8 @@ Java Swing + JDBC + MySQL 기반 자원 관리 프로그램
 
 ---
 
-## 📁 프로젝트 구조
+## 프로젝트 구조
 
-```text
 src/main
 ├── java/com/team/resourcemanager
 │   ├── model
@@ -26,81 +25,107 @@ src/main
 │   ├── ui
 │   └── util
 └── resources
-
 ```
 
 ---
 
-## 🗄 데이터베이스 설정
+## 구현 기능
 
-* **DB 이름:** `resource_manager`
+- 일반 사용자 대여 신청
+- 대여 가능한 물품 조회
+- 동일 물품 중복 신청 방지
+- 관리자 승인 대기 목록 조회
+- 관리자 대여 승인
+- 관리자 대여 거절
+- 승인 시 LOAN과 ITEM 상태를 트랜잭션으로 함께 변경
 
-### 1. DB 및 테이블 생성
+### 물품 선택
 
-MySQL 실행 후 프로젝트 루트의 `schema.sql`을 실행하여
-`resource_manager` 데이터베이스와 테이블을 생성. (테스트 데이터 미포함)
+사용자가 DB 내부의 `item_id`를 직접 입력하지 않도록 구현
 
+`AVAILABLE` 상태이면서 현재 `REQUESTED` 신청이 없는 물품만
+대여 신청 화면에 표시
 
-### 2. DB 연결 설정
-
-`util/DBConnection.java`에서 로컬 MySQL 환경에 맞게 접속 정보를 수정하고 연결을 테스트함.
-
-```java
-private static final String URL = "jdbc:mysql://localhost:3306/resource_manager";
-private static final String USER = "root";
-private static final String PASSWORD = "";
-
-```
-
-* `URL`: MySQL 서버 주소, 포트, DB 이름
-* `USER`: MySQL 사용자 이름
-* `PASSWORD`: MySQL 비밀번호
+화면에는 물품명과 시리얼 번호를 표시하고,
+DB 처리에서는 내부적으로 `item_id`를 사용
 
 ---
 
-## 🚀 실행 순서
+## 대여 상태 전환
 
-1. Maven 프로젝트를 불러오기.
-2. `ProjectTest.java`를 실행하여 공통 환경 및 기반 기능을 점검.
-3. 아래 메인 클래스를 실행하기. (실행 시 로그인 화면이 표시됨)
+- 대여 신청: LOAN은 `REQUESTED`, ITEM은 `AVAILABLE`
+- 관리자 승인: LOAN과 ITEM 모두 `BORROWED`
+- 관리자 거절: LOAN은 `REJECTED`, ITEM은 `AVAILABLE`
 
-```text
-com.team.resourcemanager.Main
-
----
-
-## 📌 공통 상태값
-
-* **권한:** `USER`, `ADMIN`
-* **ITEM:** `AVAILABLE`, `MAINTENANCE`, `BORROWED`
-* **LOAN:** `REQUESTED`, `BORROWED`, `REJECTED`, `RETURNED`, `OVERDUE`
+관리자 승인 시 LOAN과 ITEM의 상태 변경은 하나의 트랜잭션으로 처리
 
 ---
 
-## 🌿 Git 규칙
+## 주요 클래스
 
-### 브랜치
+- `Loan`: 대여 정보
+- `LoanDAO`: 대여 관련 DB 조회 및 변경
+- `LoanService`: 대여 신청 검증 및 승인·거절 처리
+- `LoanRequestPanel`: 사용자 대여 신청 화면
+- `LoanAdminPanel`: 관리자 승인·거절 화면
 
-- `main`: 안정 버전
-- `feature/*`: 담당 기능 작업용 브랜치
-  - 작업 완료 및 정상 동작 확인 후 PR 생성하여 `main`에 반영
-  - `feature/common`: 공통 기능
-  - `feature/login`: 로그인·회원 관리
-  - `feature/item`: 물품·카테고리 관리
-  - `feature/loan`: 대여 신청·승인
-  - `feature/return`: 반납·연체
-  - `feature/history`: 이력·일정·검색
+---
 
-
-### Commit 형식: `type: 작업내용`
-
-* `feat`: 기능 추가
-* `fix`: 버그 수정
-* `ui`: 화면 수정
-* `refactor`: 기능 변경 없이 코드 구조/정리
-* `test`: 테스트 코드 및 테스트 작업
-* `docs`: 문서 수정
-
+## 테스트
+```sql
+SELECT user_id, login_id, name, role
+FROM `USER`;
 ```
 
+관리자 계정이 필요한 경우 해당 계정의 권한을 변경
+
+```sql
+UPDATE `USER`
+SET role = 'ADMIN'
+WHERE login_id = 'admin01';
 ```
+
+카테고리 확인
+
+```sql
+SELECT *
+FROM CATEGORY;
+```
+
+`category_id`를 사용하여
+`AVAILABLE` 상태의 물품 등록
+
+```sql
+INSERT INTO ITEM
+(category_id, item_name, serial_no, description, status)
+VALUES
+(1, '충전기', 'CHARGER-001', '수업 사용', 'AVAILABLE');
+```
+
+대여 신청 후 최근 신청 내역을 확인
+
+```sql
+SELECT *
+FROM LOAN
+ORDER BY loan_id DESC;
+```
+
+물품 상태 확인
+
+```sql
+SELECT item_id, item_name, serial_no, status
+FROM ITEM;
+```
+
+대여 신청 시 LOAN은 `REQUESTED`,
+승인 시 LOAN과 ITEM은 `BORROWED`,
+거절 시 LOAN은 `REJECTED`, ITEM은 `AVAILABLE` 상태인지 확인
+
+---
+
+## 참고사항
+
+- `LoanRequestPanel`을 사용자 대여 메뉴에 연결
+- `LoanAdminPanel`을 관리자 대여 관리 메뉴에 연결
+- 로그인 기능과 현재 사용자 정보 및 권한 연결
+- 공통 DBConnection 구조와 연결

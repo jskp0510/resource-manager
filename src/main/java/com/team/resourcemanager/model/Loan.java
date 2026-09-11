@@ -19,7 +19,8 @@ public class Loan {
 			LocalDate dueDate, String purpose, String status) {
 		this.userId = userId;
 		this.itemId=itemId;
-		this.startDate = dueDate;
+		this.startDate = startDate;
+		this.dueDate = dueDate;
 		this.purpose = purpose;
 		this.status = status;
 	}	
