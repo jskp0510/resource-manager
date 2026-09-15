@@ -70,7 +70,7 @@ public class LoanDAO {
 	    		          	SELECT 1
 	    		          	FROM LOAN l
 	    		          	WHERE l.item_id = i.item_id
-	    		            		AND l.status = 'REQUESTED')
+	    	            		AND l.status = 'REQUESTED')
 	            """;
 
 	    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -243,5 +243,201 @@ public class LoanDAO {
 	    return items;
 	}
 
+	// ===================================================================
+	// 아래부터 반납 / 연체 관련 메서드 (팀원4 담당분 추가)
+	// ===================================================================
+
+	//본인이 대여중(BORROWED) 또는 연체(OVERDUE)인 대여 목록 조회 - 반납 신청 화면에서 사용
+	public List<Loan> findBorrowedLoansByUser(Connection conn, int userId)
+	        throws SQLException {
+
+	    String sql = """
+	            SELECT loan_id, user_id, item_id, start_date, due_date, return_date, purpose, status
+	            FROM LOAN
+	            WHERE user_id = ?
+	              AND status IN ('BORROWED', 'OVERDUE')
+	            ORDER BY due_date ASC
+	            """;
+
+	    List<Loan> loans = new ArrayList<>();
+
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+	        pstmt.setInt(1, userId);
+
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            while (rs.next()) {
+	                loans.add(mapRow(rs));
+	            }
+	        }
+	    }
+
+	    return loans;
+	}
+
+	//반납 신청 처리 (사용자) - BORROWED/OVERDUE -> RETURN_REQUESTED
+	public int markLoanReturnRequested(Connection conn, int loanId)
+	        throws SQLException {
+
+	    String sql = """
+	            UPDATE LOAN
+	            SET status = 'RETURN_REQUESTED'
+	            WHERE loan_id = ?
+	              AND status IN ('BORROWED', 'OVERDUE')
+	            """;
+
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+	        pstmt.setInt(1, loanId);
+
+	        return pstmt.executeUpdate();
+	    }
+	}
+
+	//반납 신청 목록 조회 (관리자)
+	public List<Loan> findReturnRequestedLoans(Connection conn)
+	        throws SQLException {
+
+	    String sql = """
+	            SELECT loan_id, user_id, item_id, start_date, due_date, return_date, purpose, status
+	            FROM LOAN
+	            WHERE status = 'RETURN_REQUESTED'
+	            ORDER BY loan_id ASC
+	            """;
+
+	    List<Loan> loans = new ArrayList<>();
+
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql);
+	         ResultSet rs = pstmt.executeQuery()) {
+
+	        while (rs.next()) {
+	            loans.add(mapRow(rs));
+	        }
+	    }
+
+	    return loans;
+	}
+
+	//반납 신청된 loan의 item_id 조회 (반납 확인 처리 시 물품 상태도 같이 바꿔야 하므로 필요)
+	public Integer findItemIdByReturnRequestedLoanId(Connection conn, int loanId)
+	        throws SQLException {
+
+	    String sql = """
+	            SELECT item_id
+	            FROM LOAN
+	            WHERE loan_id = ?
+	              AND status = 'RETURN_REQUESTED'
+	            """;
+
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+	        pstmt.setInt(1, loanId);
+
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            if (rs.next()) {
+	                return rs.getInt("item_id");
+	            }
+	        }
+	    }
+
+	    return null;
+	}
+
+	//반납 확인 처리 (관리자) - RETURN_REQUESTED -> RETURNED, return_date 기록
+	public int markLoanReturned(Connection conn, int loanId, Date returnDate)
+	        throws SQLException {
+
+	    String sql = """
+	            UPDATE LOAN
+	            SET status = 'RETURNED',
+	                return_date = ?
+	            WHERE loan_id = ?
+	              AND status = 'RETURN_REQUESTED'
+	            """;
+
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+	        pstmt.setDate(1, returnDate);
+	        pstmt.setInt(2, loanId);
+
+	        return pstmt.executeUpdate();
+	    }
+	}
+
+	//물품 상태를 다시 AVAILABLE로 변경 (반납 확인 시 함께 처리)
+	public int markItemAvailable(Connection conn, int itemId)
+	        throws SQLException {
+
+	    String sql = """
+	            UPDATE ITEM
+	            SET status = 'AVAILABLE'
+	            WHERE item_id = ?
+	              AND status = 'BORROWED'
+	            """;
+
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+	        pstmt.setInt(1, itemId);
+
+	        return pstmt.executeUpdate();
+	    }
+	}
+
+	//연체된 대여 건 조회 - 반납예정일이 지났는데 아직 BORROWED/RETURN_REQUESTED 상태인 것
+	public List<Loan> findOverdueLoans(Connection conn) throws SQLException {
+
+	    String sql = """
+	            SELECT loan_id, user_id, item_id, start_date, due_date, return_date, purpose, status
+	            FROM LOAN
+	            WHERE status IN ('BORROWED', 'RETURN_REQUESTED')
+	              AND due_date < CURDATE()
+	            """;
+
+	    List<Loan> loans = new ArrayList<>();
+
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql);
+	         ResultSet rs = pstmt.executeQuery()) {
+
+	        while (rs.next()) {
+	            loans.add(mapRow(rs));
+	        }
+	    }
+
+	    return loans;
+	}
+
+	//대여 건을 연체(OVERDUE) 상태로 변경
+	public int markLoanOverdue(Connection conn, int loanId) throws SQLException {
+
+	    String sql = """
+	            UPDATE LOAN
+	            SET status = 'OVERDUE'
+	            WHERE loan_id = ?
+	            """;
+
+	    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+	        pstmt.setInt(1, loanId);
+
+	        return pstmt.executeUpdate();
+	    }
+	}
+
+	//ResultSet 한 행을 Loan 객체로 변환 (반납/연체 조회 메서드들에서 공통 사용)
+	private Loan mapRow(ResultSet rs) throws SQLException {
+
+	    Date returnDate = rs.getDate("return_date");
+
+	    return new Loan(
+	            rs.getInt("loan_id"),
+	            rs.getInt("user_id"),
+	            rs.getInt("item_id"),
+	            rs.getDate("start_date").toLocalDate(),
+	            rs.getDate("due_date").toLocalDate(),
+	            returnDate == null ? null : returnDate.toLocalDate(),
+	            rs.getString("purpose"),
+	            rs.getString("status")
+	    );
+	}
 
 }
