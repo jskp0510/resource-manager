@@ -248,27 +248,3 @@ public class ResourceManagerView extends JPanel {
     }
 }
 
-/*
- ====================================================================================
- [팀원 메인 프레임(MainFrame) 연동 안내]
- ====================================================================================
- 
- 1. 모듈 특징:
-    - 본 클래스(ResourceManagerView)는 JPanel을 상속받아 독립적으로 작동하는 모듈입니다.
-    - 생성자(Constructor) 호출 시 DB 연결, 초기 카테고리/물품 데이터 로딩 및 UI 배치가 
-      자동으로 수행됩니다.
-
- 2. 메인 화면(MainFrame) 연결 방법:
-    - 메인 사이드바의 '자원/물품 관리' 버튼 클릭 이벤트(ActionListener) 발생 시,
-      우측 메인 콘텐츠 패널(contentPanel)의 화면을 아래와 같이 교체해 주세요.
-
-    [연동 예시 코드]
-    resourceManageBtn.addActionListener(e -> {
-        contentPanel.removeAll(); // 1. 기존 화면 제거
-        contentPanel.add(new ResourceManagerView()); // 2. 자원 관리 화면 추가
-        contentPanel.revalidate(); // 3. 레이아웃 재계산
-        contentPanel.repaint(); // 4. 화면 갱신
-    });
-
- ====================================================================================
-*/
