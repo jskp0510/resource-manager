@@ -66,6 +66,7 @@ public class ProjectTest {
 
         System.out.println("LOAN: " + Constants.LOAN_REQUESTED);
         System.out.println("LOAN: " + Constants.LOAN_BORROWED);
+        System.out.println("LOAN: " + Constants.LOAN_RETURN_REQUESTED);
         System.out.println("LOAN: " + Constants.LOAN_REJECTED);
         System.out.println("LOAN: " + Constants.LOAN_RETURNED);
         System.out.println("LOAN: " + Constants.LOAN_OVERDUE);

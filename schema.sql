@@ -53,6 +53,7 @@ CREATE TABLE `ITEM` (
   `description` text COLLATE utf8mb4_unicode_ci,
   `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`item_id`),
+  UNIQUE KEY `uk_item_serial_no` (`serial_no`),
   KEY `category_id` (`category_id`),
   CONSTRAINT `item_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `CATEGORY` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -61,6 +62,7 @@ CREATE TABLE `ITEM` (
 --
 -- Table structure for table `LOAN`
 --
+-- LOAN.status values: REQUESTED, BORROWED, RETURN_REQUESTED, REJECTED, RETURNED, OVERDUE
 
 DROP TABLE IF EXISTS `LOAN`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

@@ -14,6 +14,7 @@ public class Constants {
     // LOAN 상태
     public static final String LOAN_REQUESTED = "REQUESTED";
     public static final String LOAN_BORROWED = "BORROWED";
+    public static final String LOAN_RETURN_REQUESTED = "RETURN_REQUESTED";
     public static final String LOAN_REJECTED = "REJECTED";
     public static final String LOAN_RETURNED = "RETURNED";
     public static final String LOAN_OVERDUE = "OVERDUE";

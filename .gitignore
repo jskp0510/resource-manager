@@ -13,3 +13,4 @@ target/
 
 # Local configuration
 config/db.properties
+.env

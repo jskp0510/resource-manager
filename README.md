@@ -1,106 +1,129 @@
-```markdown
-# Resource Manager
+# 자원관리 프로그램
 
-Java Swing + JDBC + MySQL 기반 자원 관리 프로그램
+학교 팀 프로젝트로 제작한 **물품 대여 관리 프로그램**입니다.
 
----
+사용자는 물품을 조회하고 대여 및 반납을 요청할 수 있으며, 관리자는 물품, 회원 및 대여 상태를 관리할 수 있습니다.
 
-## 🛠 개발 환경 및 사용 기술
+## 주요 기능
 
-- Java 17+
-- Maven
-- MySQL (MySQL Connector/J 9.4.0)
+### 사용자
+
+- 회원가입 및 로그인
+- 물품 조회
+- 물품 대여 신청
+- 반납 신청
+- 대여 및 반납 내역 조회
+- 대여 일정 및 상태 확인
+
+### 관리자
+
+- 물품 및 카테고리 관리
+- 회원 관리
+- 대여 신청 승인 및 관리
+- 반납 및 연체 관리
+- 대여 내역 및 검색
+
+## 사용 기술
+
+- Java 17
 - Java Swing
+- JDBC
+- MySQL
+- Maven
 - Git / GitHub
 
----
+---------------------------------------------------------------------------
 
-## 📁 프로젝트 구조
+## 실행 방법
+
+### 1. JAR 파일로 실행
+
+개발 도구나 로컬 MySQL 서버를 설치하지 않고 실행하려면 제공된 JAR 파일을 사용합니다. Java 17 이상과 DB 접속 설정 파일은 필요합니다.
+
+#### 준비
+
+1. `resource-manager-demo.jar`를 준비합니다.
+2. 별도로 전달받은 `.env` 파일을 준비합니다.
+3. `.env` 파일을 JAR 파일과 같은 폴더에 둡니다.
+
+#### 실행
+
+```bash
+java -jar resource-manager-demo.jar
+```
+
+`.env`에는 프로그램 실행에 필요한 DB 접속 정보가 들어 있습니다. 실제 접속 정보가 포함된 `.env` 파일은 GitHub 저장소에 업로드하지 않습니다.
+
+### 2. 로컬 DB 사용
+
+로컬 MySQL을 사용하는 경우 `schema.sql`을 실행해 `resource_manager` 데이터베이스를 준비한 뒤, `.env`의 접속 정보를 로컬 환경에 맞게 설정합니다.
+
+```env
+DB_URL=jdbc:mysql://localhost:3306/resource_manager
+DB_USER=root
+DB_PASSWORD=본인_비밀번호
+```
+
+로컬 DB 사용 시 MySQL 설치와 데이터베이스 초기화가 필요합니다.
+
+## 환경 변수
+
+프로그램은 `.env` 또는 프로세스 환경변수에서 다음 설정을 읽습니다.
+
+| 변수 | 설명 |
+| --- | --- |
+| `DB_URL` | DB 접속 주소 |
+| `DB_USER` | DB 사용자 |
+| `DB_PASSWORD` | DB 비밀번호 |
+
+## 관리자 계정
+
+관리자 기능은 관리자 권한이 부여된 계정으로 로그인해야 사용할 수 있습니다. 관리자 계정 정보는 프로젝트 담당자로부터 전달받습니다.
+
+## 프로젝트 구조
 
 ```text
-src/main
-├── java/com/team/resourcemanager
-│   ├── model
-│   ├── dao
-│   ├── service
-│   ├── ui
-│   └── util
-└── resources
-
+resource-manager/
+├── src/
+│   └── main/
+│       ├── java/com/team/resourcemanager/
+│       └── resources/
+├── schema.sql
+├── pom.xml
+├── README.md
+└── .gitignore
 ```
 
----
+## 프로젝트 안내
 
-## 🗄 데이터베이스 설정
+본 프로젝트는 팀원별로 기능을 분담하여 개발한 후 하나의 프로그램으로 통합하여 완성했습니다.
 
-* **DB 이름:** `resource_manager`
+-----------------------------------------------------------------------
 
-### 1. DB 및 테이블 생성
+## 시연 흐름
 
-MySQL 실행 후 프로젝트 루트의 `schema.sql`을 실행하여
-`resource_manager` 데이터베이스와 테이블을 생성. (테스트 데이터 미포함)
+프로그램의 주요 기능은 실제 사용 흐름에 따라 다음과 같이 시연할 수 있습니다.
 
+1. 사용자 로그인
+2. 물품 조회 및 검색
+3. 물품 대여 신청
+4. 관리자 대여 신청 확인 및 승인
+5. 대여 상태 확인
+6. 사용자 반납 신청
+7. 관리자 반납 처리
+8. 대여·반납 내역 및 일정 확인
+9. 관리자 기능 확인
 
-### 2. DB 연결 설정
+   * 카테고리 관리
+   * 물품 관리
+   * 회원 관리
+   * 대여 및 반납 관리
+   * 연체 관리
+   * 검색 및 내역 조회
 
-`util/DBConnection.java`에서 로컬 MySQL 환경에 맞게 접속 정보를 수정하고 연결을 테스트함.
+### 주요 시연 흐름
 
-```java
-private static final String URL = "jdbc:mysql://localhost:3306/resource_manager";
-private static final String USER = "root";
-private static final String PASSWORD = "";
+**물품 조회 → 대여 신청 → 관리자 승인 → 대여 → 반납 신청 → 관리자 처리 → 내역 확인**
 
-```
+사용자와 관리자 간의 실제 업무 흐름을 중심으로 프로그램의 주요 기능을 확인할 수 있습니다.
 
-* `URL`: MySQL 서버 주소, 포트, DB 이름
-* `USER`: MySQL 사용자 이름
-* `PASSWORD`: MySQL 비밀번호
-
----
-
-## 🚀 실행 순서
-
-1. Maven 프로젝트를 불러오기.
-2. `ProjectTest.java`를 실행하여 공통 환경 및 기반 기능을 점검.
-3. 아래 메인 클래스를 실행하기. (실행 시 로그인 화면이 표시됨)
-
-```text
-com.team.resourcemanager.Main
-
----
-
-## 📌 공통 상태값
-
-* **권한:** `USER`, `ADMIN`
-* **ITEM:** `AVAILABLE`, `MAINTENANCE`, `BORROWED`
-* **LOAN:** `REQUESTED`, `BORROWED`, `REJECTED`, `RETURNED`, `OVERDUE`
-
----
-
-## 🌿 Git 규칙
-
-### 브랜치
-
-- `main`: 안정 버전
-- `feature/*`: 담당 기능 작업용 브랜치
-  - 작업 완료 및 정상 동작 확인 후 PR 생성하여 `main`에 반영
-  - `feature/common`: 공통 기능
-  - `feature/login`: 로그인·회원 관리
-  - `feature/item`: 물품·카테고리 관리
-  - `feature/loan`: 대여 신청·승인
-  - `feature/return`: 반납·연체
-  - `feature/history`: 이력·일정·검색
-
-
-### Commit 형식: `type: 작업내용`
-
-* `feat`: 기능 추가
-* `fix`: 버그 수정
-* `ui`: 화면 수정
-* `refactor`: 기능 변경 없이 코드 구조/정리
-* `test`: 테스트 코드 및 테스트 작업
-* `docs`: 문서 수정
-
-```
-
-```
